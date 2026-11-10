@@ -1,0 +1,157 @@
+
+{% extends "base.html" %}
+
+{% block title %}Chat with {{ other_user.username }} · ConnectSphere{% endblock %}
+
+{% block content %}
+<section class="chat-page">
+
+    <div class="chat-header">
+        <a href="{% url 'messaging:inbox' %}" class="chat-back-link">
+            ←
+        </a>
+
+        <div class="chat-avatar">
+            {% if other_user.profile.profile_picture %}
+                <img src="{{ other_user.profile.profile_picture.url }}"
+                     alt="{{ other_user.username }}">
+            {% else %}
+                {{ other_user.first_name|first|default:other_user.username|first|upper }}
+            {% endif %}
+        </div>
+
+        <div class="chat-header-info">
+            <h2>{{ other_user.get_full_name|default:other_user.username }}</h2>
+            <a href="{% url 'accounts:profile' other_user.username %}">
+                @{{ other_user.username }}
+            </a>
+        </div>
+
+        <a href="{% url 'accounts:profile' other_user.username %}"
+           class="chat-profile-link">
+            View Profile
+        </a>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+
+        {% for message in chat_messages %}
+
+            <div class="message-row {% if message.sender_id == request.user.id %}sent{% else %}received{% endif %}">
+
+                <div class="chat-message-bubble">
+
+                    {% if message.attachment %}
+                        {% if message.attachment_type == "IMAGE" %}
+                            <a href="{{ message.attachment.url }}" target="_blank" rel="noopener noreferrer">
+                                <img class="chat-attachment-image"
+                                     src="{{ message.attachment.url }}"
+                                     alt="Shared image">
+                            </a>
+                        {% elif message.attachment_type == "VIDEO" %}
+                            <video class="chat-attachment-video"
+                                   controls
+                                   preload="metadata">
+                                <source src="{{ message.attachment.url }}">
+                                Your browser does not support this video.
+                            </video>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if message.body %}
+                        <p class="chat-message-text">{{ message.body|linebreaksbr }}</p>
+                    {% endif %}
+
+                    <div class="chat-message-meta">
+                        <time>{{ message.created_at|date:"h:i A" }}</time>
+
+                        {% if message.sender_id == request.user.id %}
+                            <span>
+                                {% if message.read_at %}
+                                    Read
+                                {% else %}
+                                    Sent
+                                {% endif %}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+
+        {% empty %}
+            <div class="chat-first-message">
+                <h3>Start a conversation</h3>
+                <p>Send a message to {{ other_user.username }}.</p>
+            </div>
+        {% endfor %}
+
+    </div>
+
+
+    <form method="POST"
+        enctype="multipart/form-data"
+        class="chat-compose-form">
+
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="chat-form-errors">
+               {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="chat-compose-row">
+
+            <label for="id_attachment"
+                  class="chat-attachment-button"
+                 title="Attach image or video">
+                  +
+            </label>
+
+            <div class="chat-input-wrapper">
+               {{ form.body }}
+            </div>
+
+            <button type="submit" class="chat-send-button">
+              Send
+            </button>
+
+        </div>
+
+        <div class="chat-hidden-upload">
+          {{ form.attachment }}
+        </div>
+
+         {{ form.attachment.errors }}
+
+        <div class="chat-attachment-name" id="attachmentName">
+           Images up to 10 MB · Videos up to 100 MB
+        </div>
+
+    </form>
+
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const messages = document.getElementById("chatMessages");
+    const attachmentInput = document.getElementById("id_attachment");
+    const attachmentName = document.getElementById("attachmentName");
+
+    if (messages) {
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    if (attachmentInput && attachmentName) {
+        attachmentInput.addEventListener("change", function () {
+            const file = this.files[0];
+
+            attachmentName.textContent = file
+                ? file.name
+                : "Images up to 10 MB · Videos up to 100 MB";
+        });
+    }
+});
+</script>
+{% endblock %}

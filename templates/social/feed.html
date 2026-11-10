@@ -1,0 +1,195 @@
+
+{% extends "base.html" %}
+
+{% block title %}Home | ConnectSphere{% endblock %}
+
+{% block content %}
+
+<section class="social-feed">
+
+    <div class="feed-heading">
+        <div>
+            <span class="eyebrow">YOUR SOCIAL SPACE</span>
+            <h1>Your Feed</h1>
+            <p>Discover what's happening in your community.</p>
+        </div>
+
+        <a href="{% url 'social:post_create' %}"
+           class="primary-button create-post-button">
+            + Create Post
+        </a>
+    </div>
+
+    <div class="activity-heading">ACTIVITY</div>
+
+    <div class="post-list">
+
+        {% for post in posts %}
+
+        <article class="post-card">
+
+            <div class="post-header">
+
+                <div class="post-author">
+                    <div class="post-avatar">
+                        {{ post.author.first_name|first|default:post.author.username|first|upper }}
+                    </div>
+
+                    <div>
+                        <h3>{{ post.author.get_full_name|default:post.author.username }}</h3>
+                        <span>
+                            @{{ post.author.username }} ·
+                            {{ post.created_at|date:"M d, Y · h:i A" }}
+                        </span>
+                    </div>
+                </div>
+
+                {% if post.author_id == request.user.id %}
+                <div class="post-actions">
+
+                    <a href="{% url 'social:post_edit' post.pk %}"
+                       class="post-edit-link">
+                        Edit
+                    </a>
+
+                    <form method="POST"
+                          action="{% url 'social:post_delete' post.pk %}"
+                          onsubmit="return confirm('Are you sure you want to delete this post?');">
+                        {% csrf_token %}
+                        <button type="submit" class="post-delete-button">
+                            Delete
+                        </button>
+                    </form>
+
+                </div>
+                {% endif %}
+
+            </div>
+
+            {% if post.caption %}
+                <p class="post-caption">{{ post.caption|linebreaksbr }}</p>
+            {% endif %}
+
+            {% if post.image %}
+                <div class="post-image-wrapper">
+                    <img src="{{ post.image.url }}"
+                         alt="Post by {{ post.author.username }}"
+                         class="post-image">
+                </div>
+            {% endif %}
+
+            <!-- LIKE ACTION -->
+
+            <div class="post-engagement">
+
+                <form method="POST"
+                      action="{% url 'social:post_like' post.pk %}">
+                    {% csrf_token %}
+
+                    <button type="submit"
+                            class="engagement-like-button {% if post.user_has_liked %}is-liked{% endif %}">
+                        {% if post.user_has_liked %}
+                            ♥ Liked
+                        {% else %}
+                            ♡ Like
+                        {% endif %}
+                    </button>
+                </form>
+
+                <span class="engagement-count">
+                    {{ post.likes_count }}
+                    {% if post.likes_count == 1 %}Like{% else %}Likes{% endif %}
+                </span>
+
+                <span class="engagement-count">
+                    {{ post.comments_count }}
+                    {% if post.comments_count == 1 %}Comment{% else %}Comments{% endif %}
+                </span>
+
+            </div>
+
+            <!-- COMMENTS -->
+
+            <div class="post-comments">
+
+                <h4>Comments</h4>
+
+                {% for comment in post.comments.all %}
+
+                    <div class="comment-item">
+
+                        <div class="comment-avatar">
+                            {{ comment.author.first_name|first|default:comment.author.username|first|upper }}
+                        </div>
+
+                        <div class="comment-content">
+
+                            <div class="comment-meta">
+                                <strong>
+                                    {{ comment.author.get_full_name|default:comment.author.username }}
+                                </strong>
+
+                                <span>
+                                    {{ comment.created_at|date:"M d, Y · h:i A" }}
+                                </span>
+                            </div>
+
+                            <p>{{ comment.content|linebreaksbr }}</p>
+
+                        </div>
+
+                    </div>
+
+                {% empty %}
+
+                    <p class="no-comments">
+                        No comments yet. Start the conversation.
+                    </p>
+
+                {% endfor %}
+
+                <form method="POST"
+                      action="{% url 'social:post_comment' post.pk %}"
+                      class="comment-form">
+
+                    {% csrf_token %}
+
+                    <input
+                        type="text"
+                        name="content"
+                        maxlength="500"
+                        placeholder="Write a comment..."
+                        aria-label="Write a comment"
+                        required
+                    >
+
+                    <button type="submit" class="comment-submit-button">
+                        Comment
+                    </button>
+
+                </form>
+
+            </div>
+
+        </article>
+
+        {% empty %}
+
+        <div class="empty-feed">
+            <div class="empty-feed-icon">✦</div>
+            <h2>Your feed is waiting</h2>
+            <p>Be the first to share something with your community.</p>
+
+            <a href="{% url 'social:post_create' %}"
+               class="primary-button">
+                Create Your First Post
+            </a>
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</section>
+
+{% endblock %}

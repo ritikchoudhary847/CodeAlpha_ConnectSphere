@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile_user.username }} · ConnectSphere{% endblock %}
+
+{% block content %}
+
+<section class="profile-page">
+
+    <div class="profile-header-card">
+
+        <div class="profile-top">
+            <div class="profile-identity">
+
+                <div class="profile-avatar">
+                    {% if profile.profile_picture %}
+                        <img src="{{ profile.profile_picture.url }}" alt="{{ profile_user.username }}'s profile picture">
+                    {% else %}
+                        <span>
+                            {% if profile_user.first_name %}
+                                {{ profile_user.first_name|first|upper }}
+                            {% else %}
+                                {{ profile_user.username|first|upper }}
+                            {% endif %}
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="profile-heading">
+                    <span class="eyebrow">COMMUNITY MEMBER</span>
+
+                    <h1>
+                        {{ profile_user.get_full_name|default:profile_user.username }}
+                    </h1>
+
+                    <p>@{{ profile_user.username }}</p>
+                </div>
+            </div>
+
+            {% if request.user == profile_user %}
+               <a href="{% url 'accounts:edit_profile' %}" class="secondary-button">
+                 Edit Profile
+                </a>
+            {% else %}
+                <form method="POST"
+                     action="{% url 'social:toggle_follow' profile_user.username %}">
+                      {% csrf_token %}
+
+                        <button type="submit" class="secondary-button follow-button">
+                            {% if is_following %}
+                                 Unfollow
+                            {% else %}
+                                 Follow
+                                <a href="{% url 'messaging:start' profile_user.username %}"
+                                    class="chat-profile-message-button">
+                                         Message
+                                </a>
+                           {% endif %}
+                        </button>
+                </form>
+            {% endif %}
+        </div>
+
+
+    <div class="profile-stats">
+        <div class="profile-stat">
+             <strong>{{ post_count }}</strong>
+               <span>Posts</span>
+         </div>
+
+        <a href="{% url 'accounts:followers' profile_user.username %}"
+             class="profile-stat profile-stat-link">
+               <strong>{{ follower_count }}</strong>
+                 <span>Followers</span>
+        </a>
+
+        <a href="{% url 'accounts:following' profile_user.username %}"
+             class="profile-stat profile-stat-link">
+              <strong>{{ following_count }}</strong>
+                <span>Following</span>
+        </a>
+    </div>
+
+
+        {% if profile.bio %}
+            <div class="profile-bio">
+                {{ profile.bio|linebreaksbr }}
+            </div>
+        {% endif %}
+
+        {% if profile.website %}
+            <a class="profile-website"
+               href="{{ profile.website }}"
+               target="_blank"
+               rel="noopener noreferrer">
+                {{ profile.website }}
+            </a>
+        {% endif %}
+
+    </div>
+
+    <div class="profile-posts-section">
+        <div class="section-heading">
+            <div class="profile-section-title">
+               <span class="activity-badge">ACTIVITY</span>
+                  <h2>Posts</h2>
+            </div>
+               <span class="post-total">{{ post_count }} published</span>
+        </div>
+
+        {% if posts %}
+            <div class="profile-post-grid">
+                {% for post in posts %}
+                    <article class="profile-post-card">
+
+                        {% if post.image %}
+                            <img
+                                class="profile-post-image"
+                                src="{{ post.image.url }}"
+                                alt="Post by {{ profile_user.username }}"
+                            >
+                        {% endif %}
+
+                        {% if post.caption %}
+                            <p class="profile-post-caption">
+                                {{ post.caption|linebreaksbr }}
+                            </p>
+                        {% endif %}
+
+                        <div class="profile-post-date">
+                            {{ post.created_at|date:"M d, Y · h:i A" }}
+                        </div>
+
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-profile-posts">
+                <div class="empty-post-icon">✦</div>
+                <h3>No posts yet</h3>
+                <p>
+                    {% if request.user == profile_user %}
+                        Your posts will appear here when you share something.
+                    {% else %}
+                        This user hasn't shared any posts yet.
+                    {% endif %}
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+</section>
+{% endblock %}

@@ -1,0 +1,76 @@
+
+{% extends "base.html" %}
+
+{% block title %}Discover People · ConnectSphere{% endblock %}
+
+{% block content %}
+<section class="discovery-page">
+
+    <div class="discovery-heading">
+        <span class="eyebrow">EXPLORE YOUR COMMUNITY</span>
+        <h1>Discover People</h1>
+        <p>Find people and connect with your community.</p>
+    </div>
+
+    <form method="GET" action="{% url 'social:user_search' %}"
+          class="discovery-search-form">
+        <input
+            type="search"
+            name="q"
+            value="{{ query }}"
+            placeholder="Search by name or username..."
+            aria-label="Search users"
+        >
+        <button type="submit" class="primary-button">Search</button>
+    </form>
+
+    {% if query %}
+        <div class="discovery-results-heading">
+            <h2>Search Results</h2>
+            <span>{{ results|length }} found</span>
+        </div>
+
+        {% if results %}
+            <div class="discovery-grid">
+                {% for person in results %}
+                    <article class="discovery-card">
+
+                        <div class="discovery-avatar">
+                            {% if person.search_profile and person.search_profile.profile_picture %}
+                                <img src="{{ person.search_profile.profile_picture.url }}"
+                                     alt="{{ person.username }}">
+                            {% else %}
+                                {{ person.first_name|first|default:person.username|first|upper }}
+                            {% endif %}
+                        </div>
+
+                        <div class="discovery-actions">
+                            <a href="{% url 'messaging:start' person.username %}"
+                                class="discovery-message-link">
+                                   Message
+                            </a>
+
+                            <a href="{% url 'accounts:profile' person.username %}"
+                                class="discovery-profile-link">
+                                   View Profile
+                            </a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="discovery-empty">
+                <h3>No people found</h3>
+                <p>Try another name or username.</p>
+            </div>
+        {% endif %}
+
+    {% else %}
+        <div class="discovery-empty">
+            <h3>Find your community</h3>
+            <p>Enter a name or username above to discover people.</p>
+        </div>
+    {% endif %}
+
+</section>
+{% endblock %}

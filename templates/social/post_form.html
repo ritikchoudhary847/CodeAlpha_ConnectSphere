@@ -1,0 +1,73 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} | ConnectSphere{% endblock %}
+
+{% block content %}
+
+<section class="post-form-page">
+
+    <div class="post-form-heading">
+        <span class="eyebrow">SHARE YOUR MOMENT</span>
+        <h1>{{ page_title }}</h1>
+        <p>Express yourself and share something with your community.</p>
+    </div>
+
+    <form method="POST"
+          enctype="multipart/form-data"
+          class="post-form-card">
+
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="field-error">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="post-form-field">
+            {{ form.caption.label_tag }}
+            {{ form.caption }}
+
+            {% for error in form.caption.errors %}
+                <span class="field-error">{{ error }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="post-form-field">
+            {{ form.image.label_tag }}
+
+            {% if post and post.image %}
+                <div class="current-post-image">
+                    <img src="{{ post.image.url }}" alt="Current post image">
+                    <p>Current image</p>
+                </div>
+            {% endif %}
+
+            {{ form.image }}
+
+            {% for error in form.image.errors %}
+                <span class="field-error">{{ error }}</span>
+            {% endfor %}
+
+            <small>Supported image formats. Maximum size: 5 MB.</small>
+        </div>
+
+        <div class="post-form-actions">
+
+            <a href="{% url 'social:feed' %}"
+               class="secondary-button">
+                Cancel
+            </a>
+
+            <button type="submit" class="primary-button">
+                {{ button_text }}
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
+
+{% endblock %}

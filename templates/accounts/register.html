@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account | ConnectSphere{% endblock %}
+
+{% block content %}
+<section class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-heading">
+            <span class="eyebrow">JOIN THE COMMUNITY</span>
+            <h1>Create your account</h1>
+            <p>Connect, share and discover new people.</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% for error in field.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="primary-button">
+                Create Account
+            </button>
+        </form>
+
+        <p class="auth-footer">
+            Already have an account?
+            <a href="{% url 'accounts:login' %}">Sign in</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

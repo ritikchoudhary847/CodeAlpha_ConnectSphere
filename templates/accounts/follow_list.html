@@ -1,0 +1,60 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ list_type }} · {{ profile_user.username }}{% endblock %}
+
+{% block content %}
+<section class="follow-list-page">
+
+    <div class="follow-list-header">
+        <a href="{% url 'accounts:profile' profile_user.username %}"
+           class="follow-back-link">
+            ← Back to Profile
+        </a>
+
+        <span class="eyebrow">COMMUNITY</span>
+        <h1>{{ list_type }}</h1>
+        <p>
+            {{ list_count }} people
+            {% if list_type == "Followers" %}
+                following @{{ profile_user.username }}
+            {% else %}
+                followed by @{{ profile_user.username }}
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="follow-list-container">
+        {% for person in people %}
+            <article class="follow-person-card">
+
+                <div class="follow-person-avatar">
+                    {% if person.profile.profile_picture %}
+                        <img src="{{ person.profile.profile_picture.url }}"
+                             alt="{{ person.username }}">
+                    {% else %}
+                        {{ person.first_name|first|default:person.username|first|upper }}
+                    {% endif %}
+                </div>
+
+                <div class="follow-person-info">
+                    <h3>{{ person.get_full_name|default:person.username }}</h3>
+                    <span>@{{ person.username }}</span>
+                </div>
+
+                <a href="{% url 'accounts:profile' person.username %}"
+                   class="follow-view-button">
+                    View Profile
+                </a>
+
+            </article>
+        {% empty %}
+            <div class="follow-empty">
+                <h3>No {{ list_type|lower }} yet</h3>
+                <p>This list will appear here when people connect.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+</section>
+{% endblock %}

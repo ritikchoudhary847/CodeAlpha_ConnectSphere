@@ -1,0 +1,44 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# User uploaded media
+media/
+
+# Collected static files
+staticfiles/
+
+# Testing and coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# IDE and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+# Python environment and secrets
+.envrc
+*.pem
+
+# Editor temporary files
+*.swp
+*.swo

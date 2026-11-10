@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile · ConnectSphere{% endblock %}
+
+{% block content %}
+<section class="edit-profile-page">
+
+    <div class="edit-profile-heading">
+        <span class="eyebrow">ACCOUNT SETTINGS</span>
+        <h1>Edit your profile</h1>
+        <p>Keep your information up to date and let people know more about you.</p>
+    </div>
+
+    <div class="edit-profile-card">
+
+        <form method="POST" enctype="multipart/form-data" class="profile-edit-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            <div class="profile-form-grid">
+
+                <div class="profile-form-field">
+                    <label for="{{ form.first_name.id_for_label }}">First name</label>
+                    {{ form.first_name }}
+                    {{ form.first_name.errors }}
+                </div>
+
+                <div class="profile-form-field">
+                    <label for="{{ form.last_name.id_for_label }}">Last name</label>
+                    {{ form.last_name }}
+                    {{ form.last_name.errors }}
+                </div>
+
+            </div>
+
+            <div class="profile-form-field">
+                <label for="{{ form.bio.id_for_label }}">Bio</label>
+                {{ form.bio }}
+                <small>Maximum 160 characters.</small>
+                {{ form.bio.errors }}
+            </div>
+
+            <div class="profile-form-field">
+                <label for="{{ form.website.id_for_label }}">Website</label>
+                {{ form.website }}
+                {{ form.website.errors }}
+            </div>
+
+            <div class="profile-form-field">
+                <label for="{{ form.profile_picture.id_for_label }}">Profile picture</label>
+
+                {% if profile.profile_picture %}
+                    <div class="current-profile-picture">
+                        <img src="{{ profile.profile_picture.url }}" alt="Current profile picture">
+                        <span>Current profile picture</span>
+                    </div>
+                {% endif %}
+
+                {{ form.profile_picture }}
+                <small>JPG, PNG or WEBP · Maximum 5 MB.</small>
+                {{ form.profile_picture.errors }}
+            </div>
+
+            <div class="profile-form-actions">
+                <a href="{% url 'accounts:profile' request.user.username %}" class="secondary-button">
+                    Cancel
+                </a>
+
+                <button type="submit" class="primary-button">
+                    Save Changes
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</section>
+{% endblock %}

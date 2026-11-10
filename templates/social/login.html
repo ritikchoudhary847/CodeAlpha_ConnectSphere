@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Login | ConnectSphere{% endblock %}
+
+{% block content %}
+<section class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-heading">
+            <span class="eyebrow">WELCOME BACK</span>
+            <h1>Sign in</h1>
+            <p>Continue your ConnectSphere journey.</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            {% csrf_token %}
+
+            {{ form.non_field_errors }}
+
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% for error in field.errors %}
+                        <small class="field-error">{{ error }}</small>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="primary-button">
+                Sign In
+            </button>
+        </form>
+
+        <p class="auth-footer">
+            Don't have an account?
+            <a href="{% url 'accounts:register' %}">Create account</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

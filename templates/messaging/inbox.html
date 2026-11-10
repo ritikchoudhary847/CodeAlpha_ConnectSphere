@@ -1,0 +1,75 @@
+
+{% extends "base.html" %}
+
+{% block title %}Messages · ConnectSphere{% endblock %}
+
+{% block content %}
+<section class="messaging-page">
+
+    <div class="messaging-heading">
+        <span class="eyebrow">YOUR CONNECTIONS</span>
+        <h1>Messages</h1>
+        <p>Your private conversations in one place.</p>
+    </div>
+
+    <div class="inbox-container">
+        {% for item in conversation_data %}
+            <a href="{% url 'messaging:conversation' item.conversation.pk %}"
+               class="inbox-card">
+
+                <div class="chat-avatar">
+                    {% if item.other_user.profile.profile_picture %}
+                        <img src="{{ item.other_user.profile.profile_picture.url }}"
+                             alt="{{ item.other_user.username }}">
+                    {% else %}
+                        {{ item.other_user.first_name|first|default:item.other_user.username|first|upper }}
+                    {% endif %}
+                </div>
+
+                <div class="inbox-person">
+                    <h3>{{ item.other_user.get_full_name|default:item.other_user.username }}</h3>
+                    <span>@{{ item.other_user.username }}</span>
+
+                    <p>
+                        {% if item.latest_message %}
+                            {% if item.latest_message.sender_id == request.user.id %}
+                                You:
+                            {% endif %}
+                            {% if item.latest_message.body %}
+                                {{ item.latest_message.body|truncatechars:65 }}
+                            {% elif item.latest_message.attachment_type == "IMAGE" %}
+                                Photo
+                            {% elif item.latest_message.attachment_type == "VIDEO" %}
+                                Video
+                            {% endif %}
+                        {% else %}
+                            Start your conversation
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="inbox-meta">
+                    {% if item.latest_message %}
+                        <time>{{ item.latest_message.created_at|date:"M d" }}</time>
+                    {% endif %}
+
+                    {% if item.unread_count %}
+                        <span class="unread-badge">{{ item.unread_count }}</span>
+                    {% endif %}
+                </div>
+
+            </a>
+        {% empty %}
+            <div class="chat-empty">
+                <div class="chat-empty-icon">✉</div>
+                <h2>No conversations yet</h2>
+                <p>Visit someone's profile and select Message to start a private conversation.</p>
+                <a href="{% url 'social:user_search' %}" class="chat-primary-button">
+                    Discover People
+                </a>
+            </div>
+        {% endfor %}
+    </div>
+
+</section>
+{% endblock %}
